@@ -1,20 +1,55 @@
-from fastapi import FastAPI, Form
+from fastapi import FastAPI, Form, HTTPException, Depends
 from fastapi.responses import HTMLResponse
+from sqlalchemy.orm import Session
+from urllib.parse import urlparse
+import string
+import random
 
+import models
+import db
 
 
 app = FastAPI()
 
 
+models.Base.metadata.create_all(bind=db.engine)
+
+
+# Function / Dependancy to get the database session
+def get_db():
+    db = db.SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+
+# Function to validate our input URL
+def validate_url(url: str) -> bool:
+    parsed = urlparse(url)
+    return all([parsed.scheme, parsed.netloc])
+
+
+# Default Route *Requirement 1*
 @app.get("/")
 def read_root():
     return {"Hello": "World"}
+
+
+# Generate Shortened URL *Requirement 2*
+def generate_short_url(length: int = 6) -> str:
+    characters = string.ascii_letters + string.digits
+    return "".join(random.choice(characters) for _ in range(length))
+
+
+
 
 @app.get("/items/{item_id}")
 def read_item(item_id: int, q: str = None):
     return {"item_id": item_id, "q": q}
 
 
+## Shorty app GET function *Requierment 2*
 @app.get("/shorty", response_class=HTMLResponse)
 def get_form():
     return """
@@ -24,17 +59,31 @@ def get_form():
     </form>
     """
 
+
+## Shorty app POST function *Requierment 3*
+@app.post("/shorty")
+def submit_url(url: str = Form(...), db: Session = Depends(get_db)):
+    if not validate_url(url):
+        raise HTTPException(status_code=400, detail="Invalid URL")
+
+    shortened_url = generate_short_url()
+    db_url = models.URL(original_url=url, shortened_url=shortened_url)
+    db.add(db_url)
+    db.commit()
+    db.refresh(db_url)
+
+    return {"original_url": url, "shortened_url": shortened_url}
+
+
 ## Our Actual App will be here where we will shorten the URL
 ## We need to understand how the request will come in, store the original URL and then return the shortened URL
-@app.post("/shorty")
-def submit_url(url: str = Form(...)):
     #TODO # We will take this URL and then shorten it here
 
     #TODO # Return a 201 response with the shortened URL
     #TODO # Or we reply with a 400 response if the URL is not valid
     #TODO # Endpoint should return a 200 OK status code with the original URL
+    #TODO # 301 redirect original Long URL
     #TODO # Update an existing short URL using a PUT method
     #TODO # Will need to validate the string to ensure there is nothing malicious happening.
     #TODO # Return a 204 response if the URL is successfully deleted
     #TODO # 200 OK code with the statustics of the URL (IE AccessCount: 10)
-    return {"submitted_url": url}
