@@ -17,11 +17,11 @@ models.Base.metadata.create_all(bind=db.engine)
 
 # Function / Dependancy to get the database session
 def get_db():
-    db = db.SessionLocal()
+    db_session = db.SessionLocal()
     try:
-        yield db
+        yield db_session
     finally:
-        db.close()
+        db_session.close()
 
 
 # Function to validate our input URL

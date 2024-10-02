@@ -7,5 +7,5 @@ from sqlalchemy.orm import sessionmaker
 DATABASEURL = "mysql+pymysql://admin:admin@localhost/shortydb"
 
 engine = create_engine(DATABASEURL)
-SessionLocal = sessionmaker(autocommut=False, autoflush=False, bind=engine)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
