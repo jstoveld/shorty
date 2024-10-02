@@ -59,6 +59,8 @@ def get_form():
     </form>
     """
 
+
+## Our Actual App will be here where we will shorten the URL
 #DONE # We will take this URL and then shorten it here
 ## Shorty app POST function *Requierment 3*
 @app.post("/shorty")
@@ -82,11 +84,11 @@ def redirect_url(shortened_url: str, db: Session = Depends(get_db)):
     db_url = db.query(models.URL).filter(models.URL.shortened_url == shortened_url).first()
     if db_url is None:
         raise HTTPException(status_code=404, detail="URL not found")
-    return RedirectResponse(url=db_url.original_url)
+    return RedirectResponse(url=db_url.original_url, status_code=301)
 
 
-## Our Actual App will be here where we will shorten the URL
-## We need to understand how the request will come in, store the original URL and then return the shortened URL
+
+
     
 
 
