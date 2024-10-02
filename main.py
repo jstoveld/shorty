@@ -35,7 +35,7 @@ def validate_url(url: str) -> bool:
 # Default Route *Requirement 1*
 @app.get("/")
 def read_root():
-    return {"Hello": "World"}
+    return RedirectResponse(url="/shorty", status_code=301)
 
 
 # Generate Shortened URL *Requirement 2*
