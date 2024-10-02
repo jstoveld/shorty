@@ -44,11 +44,18 @@ def generate_short_url(length: int = 6) -> str:
     return "".join(random.choice(characters) for _ in range(length))
 
 
-@app.get("/items/{item_id}")
-def read_item(item_id: int, q: str = None):
-    return {"item_id": item_id, "q": q}
+## GET METHOD TO SEE ITEMS
+## NOTE URL IS UNDER ITEMS /items/{short_url}
+## TODO Get List of Items *Requierment 4*
+@app.get("/shorty/items/{shortened_url}")
+def read_item(shortened_url: str, db: Session = Depends(get_db)):
+    item = db.query(models.URL).filter(models.URL.shortened_url == shortened_url).first()
+    if item is None:
+        raise HTTPException(status_code=404, detail="Item not found")
+    return item
 
 
+## DONE Form to collect the original LONG URL
 ## Shorty app GET function *Requierment 2*
 @app.get("/shorty", response_class=HTMLResponse)
 def get_form():
@@ -76,9 +83,9 @@ def submit_url(url: str = Form(...), db: Session = Depends(get_db)):
 
     return {"original_url": url, "shortened_url": shortened_url}
 
-#TODO # Return a 201 response with the shortened URL
-#TODO # Endpoint should return a 200 OK status code with the original URL
-#TODO # 301 redirect original Long URL
+#DONE # Return a 201 response with the shortened URL
+#DONE # Endpoint should return a 200 OK status code with the original URL
+#DONE # 301 redirect original Long URL
 @app.get("/shorty/{shortened_url}")
 def redirect_url(shortened_url: str, db: Session = Depends(get_db)):
     db_url = db.query(models.URL).filter(models.URL.shortened_url == shortened_url).first()
