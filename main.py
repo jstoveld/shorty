@@ -46,7 +46,7 @@ def generate_short_url(length: int = 6) -> str:
 
 ## GET METHOD TO SEE ITEMS
 ## NOTE URL IS UNDER ITEMS /items/{short_url}
-## TODO Get List of Items *Requierment 4*
+## DONE Get List of Items *Requierment 4*
 @app.get("/shorty/items/{shortened_url}")
 def read_item(shortened_url: str, db: Session = Depends(get_db)):
     item = db.query(models.URL).filter(models.URL.shortened_url == shortened_url).first()
