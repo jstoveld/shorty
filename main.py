@@ -94,7 +94,7 @@ def redirect_url(shortened_url: str, db: Session = Depends(get_db)):
     return RedirectResponse(url=db_url.original_url, status_code=301)
 
 #TODO # Return a 204 response if the URL is successfully deleted
-@app.delete("/shorty/{shortened_url}")
+@app.delete("/shorty/{shortened_url}", status_code=204)
 def delete_url(shortened_url: str, db: Session = Depends(get_db)):
     db_url = db.query(models.URL).filter(models.URL.shortened_url == shortened_url).first()
     if db_url is None:
