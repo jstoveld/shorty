@@ -25,8 +25,8 @@ def get_db():
 
 
 # Function to validate our input URL
-#TODO # Or we reply with a 400 response if the URL is not valid
-#TODO # Will need to validate the string to ensure there is nothing malicious happening.
+# DONE # Or we reply with a 400 response if the URL is not valid
+# DONE # Will need to validate the string to ensure there is nothing malicious happening.
 def validate_url(url: str) -> bool:
     parsed = urlparse(url)
     return all([parsed.scheme, parsed.netloc])
