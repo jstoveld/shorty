@@ -16,6 +16,7 @@ models.Base.metadata.create_all(bind=db.engine)
 
 
 # Function / Dependancy to get the database session
+# DONE # We need to create a database session
 def get_db():
     db_session = db.SessionLocal()
     try:
@@ -33,12 +34,14 @@ def validate_url(url: str) -> bool:
 
 
 # Default Route *Requirement 1*
+# DONE # Redirect to /shorty
 @app.get("/")
 def read_root():
     return RedirectResponse(url="/shorty", status_code=301)
 
 
 # Generate Shortened URL *Requirement 2*
+# DONE Shortened URL works
 def generate_short_url(length: int = 6) -> str:
     characters = string.ascii_letters + string.digits
     return "".join(random.choice(characters) for _ in range(length))
@@ -105,12 +108,22 @@ def delete_url(shortened_url: str, db: Session = Depends(get_db)):
     return {"detail": "URL deleted successfully"}
 
     
+#TODO # Update an existing short URL using a PUT method
+@app.put("/shorty/{shortened_url}")
+def update_url(shortened_url: str, new_url: str = Form(...), db: Session = Depends(get_db)):
+    if not validate_url(new_url):
+        raise HTTPException(status_code=400, detail="Invalid URL")
+    
+    db_url = db.query(models.URL).filter(models.URL.shortened_url == shortened_url).first()
+    if db_url is None:
+        raise HTTPException(status_code=404, detail="URL not found")
+    
+    db_url.original_url = new_url
+    db.commit()
+    db.refresh(db_url)
+
+    return {"original_url": new_url, "shortened_url": db_url.shortened_url}
 
 
 
-
-
-    #TODO # Update an existing short URL using a PUT method
-
-
-    #TODO # 200 OK code with the statustics of the URL (IE AccessCount: 10)
+#TODO # 200 OK code with the statustics of the URL (IE AccessCount: 10)
