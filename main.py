@@ -93,8 +93,16 @@ def redirect_url(shortened_url: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="URL not found")
     return RedirectResponse(url=db_url.original_url, status_code=301)
 
-
-
+#TODO # Return a 204 response if the URL is successfully deleted
+@app.delete("/shorty/{shortened_url}")
+def delete_url(shortened_url: str, db: Session = Depends(get_db)):
+    db_url = db.query(models.URL).filter(models.URL.shortened_url == shortened_url).first()
+    if db_url is None:
+        raise HTTPException(status_code=404, detail="URL not found")
+    
+    db.delete(db_url)
+    db.commit()
+    return {"detail": "URL deleted successfully"}
 
     
 
@@ -104,5 +112,5 @@ def redirect_url(shortened_url: str, db: Session = Depends(get_db)):
 
     #TODO # Update an existing short URL using a PUT method
 
-    #TODO # Return a 204 response if the URL is successfully deleted
+
     #TODO # 200 OK code with the statustics of the URL (IE AccessCount: 10)
