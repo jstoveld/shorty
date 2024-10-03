@@ -96,7 +96,7 @@ def redirect_url(shortened_url: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="URL not found")
     return RedirectResponse(url=db_url.original_url, status_code=301)
 
-#TODO # Return a 204 response if the URL is successfully deleted
+#DONE # Return a 204 response if the URL is successfully deleted
 @app.delete("/shorty/{shortened_url}", status_code=204)
 def delete_url(shortened_url: str, db: Session = Depends(get_db)):
     db_url = db.query(models.URL).filter(models.URL.shortened_url == shortened_url).first()
@@ -108,7 +108,8 @@ def delete_url(shortened_url: str, db: Session = Depends(get_db)):
     return {"detail": "URL deleted successfully"}
 
     
-#TODO # Update an existing short URL using a PUT method
+#DONE # Update an existing short URL using a PUT method
+## PUT method to update the long url or redirect target works now. To leverage via postman ensure that you are updating the request to Body - form-data, key new_url and the value is new long form URL or redirect target.
 @app.put("/shorty/{shortened_url}")
 def update_url(shortened_url: str, new_url: str = Form(...), db: Session = Depends(get_db)):
     if not validate_url(new_url):
@@ -126,4 +127,16 @@ def update_url(shortened_url: str, new_url: str = Form(...), db: Session = Depen
 
 
 
-#TODO # 200 OK code with the statustics of the URL (IE AccessCount: 10)
+# DONE # 200 OK code with the statustics of the URL (IE AccessCount: 10)
+## GET method to get the statistics of the short URL
+@app.get("/shorty/{shortened_url}/stats")
+def get_stats(shortened_url: str, db: Session = Depends(get_db)):
+    db_url = db.query(models.URL).filter(models.URL.shortened_url == shortened_url).first()
+    if db_url is None:
+        raise HTTPException(status_code=404, detail="URL not found")
+    
+    return {
+        "original_url": db_url.original_url,
+        "shortened_url": db_url.shortened_url,
+        "access_count": db_url.access_count
+    }
