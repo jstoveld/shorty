@@ -89,7 +89,7 @@ def submit_url(url: str = Form(...), db: Session = Depends(get_db)):
 #DONE # Return a 201 response with the shortened URL
 #DONE # Endpoint should return a 200 OK status code with the original URL
 #DONE # 301 redirect original Long URL
-## TODO Need to add a counter that updates the access_count
+#DONE Need to add a counter that updates the access_count
 @app.get("/shorty/{shortened_url}")
 def redirect_url(shortened_url: str, db: Session = Depends(get_db)):
     db_url = db.query(models.URL).filter(models.URL.shortened_url == shortened_url).first()
@@ -146,5 +146,7 @@ def get_stats(shortened_url: str, db: Session = Depends(get_db)):
     return {
         "original_url": db_url.original_url,
         "shortened_url": db_url.shortened_url,
+        "created_at": db_url.created_at,
+        "updated_at": db_url.updated_at,
         "access_count": db_url.access_count
     }
