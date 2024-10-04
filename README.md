@@ -1,3 +1,6 @@
+## Project URL
+https://roadmap.sh/projects/url-shortening-service
+
 # Shorty API
 
 This is a RESTful API built with FastAPI and backed by a MySQL database. The API provides URL shortening services.
